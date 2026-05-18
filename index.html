@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitRoast 🔥 — AI GitHub Profile Roaster</title>
+  <meta name="description" content="Enter any GitHub username and watch AI brutally roast their profile." />
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+
+  <div class="app">
+
+    <header class="header">
+      <div class="logo">Git<span>Roast</span></div>
+      <p class="tagline">AI-powered GitHub profile roaster</p>
+      <div class="fire-bar">
+        <div class="fire-dot"></div>
+        <div class="fire-dot"></div>
+        <div class="fire-dot"></div>
+      </div>
+    </header>
+
+    <div class="search-box">
+      <div class="input-row">
+        <span class="gh-prefix">github.com/</span>
+        <input id="usernameInput" class="username-input" type="text" placeholder="enter username..." />
+        <button id="roastBtn" class="roast-btn" onclick="startRoast()">Roast Me 🔥</button>
+      </div>
+      <p class="examples">
+        Try:
+        <span onclick="tryExample('torvalds')">torvalds</span> ·
+        <span onclick="tryExample('gvanrossum')">gvanrossum</span> ·
+        <span onclick="tryExample('sindresorhus')">sindresorhus</span>
+      </p>
+    </div>
+
+    <div id="errorMsg" class="error-msg"></div>
+
+    <div id="profileCard" class="profile-card">
+      <img id="profileAvatar" class="avatar" src="" alt="avatar" />
+      <div class="profile-info">
+        <div id="profileName" class="profile-name"></div>
+        <div id="profileHandle" class="profile-handle"></div>
+        <div id="statsRow" class="stats-row"></div>
+      </div>
+    </div>
+
+    <div id="loadingState" class="loading-state">
+      <p id="loadingText" class="loading-text">fetching profile...</p>
+    </div>
+
+    <div id="roastOutput" class="roast-output">
+      <p class="section-label flame">🔥 the roast</p>
+      <div id="roastCard" class="roast-card"></div>
+
+      <p class="section-label green">✅ real talk</p>
+      <div id="feedbackCard" class="feedback-card"></div>
+
+      <div class="action-row">
+        <button class="copy-btn" onclick="copyRoast()">copy roast</button>
+        <button class="share-btn" onclick="shareRoast()">share on twitter</button>
+      </div>
+    </div>
+
+    <footer class="footer">built with Claude AI + GitHub API</footer>
+
+  </div>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
