@@ -237,3 +237,13 @@ body {
   color: #333;
   letter-spacing: 1px;
 }
+.footer a {
+  color: #ff4d00;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.footer a:hover {
+  color: #ff7a00;
+  text-decoration: underline;
+}
