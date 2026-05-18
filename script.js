@@ -1,5 +1,4 @@
 let currentRoast = '';
-let currentUser = '';
 
 function tryExample(name) {
   document.getElementById('usernameInput').value = name;
@@ -122,42 +121,25 @@ Location: ${user.location || 'Unknown'}
 Company: ${user.company || 'None'}
   `.trim();
 
-  const prompt = `You are GitRoast — an AI that roasts GitHub profiles like a Comedy Central roast. Be brutal, funny, and specific. Reference actual numbers.
-
-Profile data:
-${profileData}
-
-Respond ONLY in this JSON format, no extra text:
-{
-  "roast": "2-3 paragraphs of savage, funny roasting. Reference real numbers. Developer humor. No emojis.",
-  "feedback": "2-3 genuine tips to improve their GitHub. Start with strengths. Be direct like a senior dev mentor."
-}`;
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const response = await fetch('/.netlify/functions/roast', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }]
-    })
+    body: JSON.stringify({ profileData })
   });
 
-  if (!response.ok) throw new Error('AI roast failed. Try again!');
+  if (!response.ok) throw new Error('Roast failed. Try again!');
 
-  const data = await response.json();
   hideLoading();
 
   let parsed;
   try {
-    const text = data.content[0].text.replace(/```json|```/g, '').trim();
+    const text = await response.text();
     parsed = JSON.parse(text);
   } catch {
-    throw new Error('Unexpected AI response. Try again!');
+    throw new Error('Unexpected response. Try again!');
   }
 
   currentRoast = parsed.roast;
-  currentUser = user.login;
 
   document.getElementById('roastCard').textContent = parsed.roast;
   document.getElementById('feedbackCard').textContent = parsed.feedback;
@@ -173,7 +155,7 @@ function copyRoast() {
 }
 
 function shareRoast() {
-  const tweet = `Just got roasted by AI on GitRoast 😭🔥\n\nMy GitHub got absolutely destroyed lol\n\nTry yours → gitroast.netlify.app\n\n#GitRoast #GitHub #100DaysOfCode`;
+  const tweet = `Just got roasted by AI on GitRoast 😭🔥\n\nMy GitHub got absolutely destroyed lol\n\nTry yours → gitroast-app.netlify.app\n\n#GitRoast #GitHub #100DaysOfCode`;
   window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(tweet)}`, '_blank');
 }
 
