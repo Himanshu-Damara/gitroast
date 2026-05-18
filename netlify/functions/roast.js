@@ -1,5 +1,4 @@
 exports.handler = async function (event) {
-  // Allow only POST requests
   if (event.httpMethod !== 'POST') {
     return {
       statusCode: 405,
@@ -8,97 +7,83 @@ exports.handler = async function (event) {
   }
 
   try {
-    // Parse frontend request
     const { profileData } = JSON.parse(event.body);
 
-    // Check API key
-    const apiKey = process.env.GEMINI_API_KEY;
-
-    console.log("API KEY EXISTS:", !!apiKey);
+    const apiKey = process.env.GROQ_API_KEY;
 
     if (!apiKey) {
-      throw new Error("Gemini API key missing");
+      throw new Error('Groq API key missing');
     }
 
-    // Prompt for Gemini
     const prompt = `
 You are GitRoast — an AI that brutally roasts GitHub profiles like a Comedy Central roast.
 
 Rules:
-- Be funny, sarcastic, and specific
+- Be funny and sarcastic
 - Mention actual GitHub stats
 - Roast coding habits
-- No emojis
-- Then give constructive feedback like a senior developer mentor
+- Then give constructive feedback
 
-Respond ONLY in valid JSON format like this:
+Respond ONLY in JSON format:
 
 {
-  "roast": "Funny roast here",
-  "feedback": "Helpful feedback here"
+  "roast": "funny roast",
+  "feedback": "helpful feedback"
 }
 
 Profile Data:
 ${profileData}
 `;
 
-    // Gemini API request
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+      'https://api.groq.com/openai/v1/chat/completions',
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          contents: [
+          model: 'llama3-70b-8192',
+          messages: [
             {
-              parts: [
-                {
-                  text: prompt
-                }
-              ]
+              role: 'user',
+              content: prompt
             }
-          ]
+          ],
+          temperature: 0.9
         })
       }
     );
 
-    // Parse Gemini response
     const data = await response.json();
 
-    console.log("Gemini Response:", JSON.stringify(data));
+    console.log(JSON.stringify(data));
 
-    // Safe extraction
     const rawText =
-      data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      data?.choices?.[0]?.message?.content;
 
     if (!rawText) {
-      throw new Error(
-        data?.error?.message || 'No response from Gemini'
-      );
+      throw new Error('No response from Groq');
     }
-
-    // Clean markdown formatting
-    const cleanedText = rawText
-      .replace(/```json/g, '')
-      .replace(/```/g, '')
-      .trim();
 
     let parsed;
 
-    // Ensure valid JSON
     try {
-      parsed = JSON.parse(cleanedText);
+      parsed = JSON.parse(
+        rawText
+          .replace(/```json/g, '')
+          .replace(/```/g, '')
+          .trim()
+      );
     } catch {
       parsed = {
-        roast: cleanedText,
+        roast: rawText,
         feedback:
-          'Keep building projects, write better READMEs, and stay consistent on GitHub.'
+          'Keep building projects and improving your GitHub consistency.'
       };
     }
 
-    // Return response
     return {
       statusCode: 200,
       headers: {
@@ -109,7 +94,7 @@ ${profileData}
     };
 
   } catch (err) {
-    console.error("FUNCTION ERROR:", err);
+    console.error(err);
 
     return {
       statusCode: 500,
